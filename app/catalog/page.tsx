@@ -55,7 +55,7 @@ function CatalogContent() {
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState<any[]>([]);
     const [authors, setAuthors] = useState<any[]>([]);
-    const limit = 12;
+    const limit = 20;
 
     useEffect(() => {
         Promise.all([

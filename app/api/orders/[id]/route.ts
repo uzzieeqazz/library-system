@@ -5,13 +5,14 @@ import { db } from "@/lib/db";
 import { orders, books } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "admin") {
         return NextResponse.json({ error: "Рұқсат жоқ" }, { status: 403 });
     }
 
-    const orderId = parseInt(params.id);
+    const { id } = await params;
+    const orderId = parseInt(id);
     const { status } = await req.json();
 
     const validStatuses = ["approved", "returned", "cancelled"];

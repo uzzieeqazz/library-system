@@ -190,7 +190,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>  
+        </div>
       </div>
 
       {/* ── FEATURED BOOK ── */}
@@ -313,11 +313,11 @@ export default function HomePage() {
       <section className="quote-section">
         <div className="container">
           <div className="quote-section__text animate-fade-up">
-            "Адамзатқа ең үлкен игілік жасаған — кітап жасаған адам"
+            "Ғылым таппай мақтанба, орын таппай баптанба"
           </div>
           <div className="quote-ornament" />
           <div className="quote-section__author animate-fade-up delay-2">
-            — <span>Абай Құнанбаев</span>, Қара сөздер
+            — <span>Абай Құнанбаев</span>, Өлеңдер
           </div>
         </div>
       </section>

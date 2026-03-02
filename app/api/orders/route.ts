@@ -18,6 +18,8 @@ export async function GET(req: NextRequest) {
     const userId = parseInt((session.user as any).id);
     const isAdmin = (session.user as any).role === "admin";
 
+    const showAll = isAdmin && req.nextUrl.searchParams.get("all") === "true";
+
     const rows = await db
         .select({
             id: orders.id,
@@ -35,7 +37,7 @@ export async function GET(req: NextRequest) {
         .leftJoin(books, eq(orders.bookId, books.id))
         .leftJoin(authors, eq(books.authorId, authors.id))
         .leftJoin(users, eq(orders.userId, users.id))
-        .where(isAdmin ? undefined : eq(orders.userId, userId))
+        .where(showAll ? undefined : eq(orders.userId, userId))
         .orderBy(sql`${orders.orderedAt} DESC`);
 
     // Reshape for frontend compatibility

@@ -46,7 +46,7 @@ export default function AdminPage() {
 
     useEffect(() => {
         if (status !== "authenticated") return;
-        fetch("/api/orders").then(r => r.json()).then(d => { setOrders(Array.isArray(d) ? d : []); setOrdersLoading(false); }).catch(() => setOrdersLoading(false));
+        fetch("/api/orders?all=true").then(r => r.json()).then(d => { setOrders(Array.isArray(d) ? d : []); setOrdersLoading(false); }).catch(() => setOrdersLoading(false));
         fetch("/api/categories").then(r => r.json()).then(setCategories);
         loadBooks();
     }, [status]);
