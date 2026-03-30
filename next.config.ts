@@ -6,7 +6,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "covers.openlibrary.org",
-        pathname: "/b/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
       {
         protocol: "https",
@@ -19,14 +22,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "is3-ssl.mzstatic.com",
-      },
-      {
-        protocol: "https",
-        hostname: "is4-ssl.mzstatic.com",
-      },
-      {
-        protocol: "https",
-        hostname: "is5-ssl.mzstatic.com",
       },
     ],
   },
