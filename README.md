@@ -1,160 +1,82 @@
-# 📚 Кітапхана — Цифрлық кітапхана жүйесі
+<div align="center">
+  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/book-open.svg" width="60" alt="LibrarySystem Logo"/>
+  <h1>Library System</h1>
+  <p>Кітапхананы басқаруға арналған смарт веб-платформа</p>
 
-Кітапханашылар мен оқырмандарға арналған толыққанды веб-қосымша. Пайдаланушылар кітаптарды шолып, тапсырыс бере алады. Әкімші кітаптарды және тапсырыстарды басқара алады.
+  <div>
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
+    <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+  </div>
+</div>
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-0.40-green)
+<br/>
 
----
+**Library System** — бұл сандық кітапхана ортасын басқаруға, оқырмандарға кітаптарды ыңғайлы іздеуге және уақытша жалға алуға (borrow) мүмкіндік беретін кешенді веб-қосымша. 
 
-## ✨ Мүмкіндіктер
+## Системалық Архитектура
 
-- 🔍 **Каталог** — кітаптарды іздеу, санат, автор бойынша сүзу, pagination
-- 📖 **Кітап беті** — толық ақпарат, автор туралы, ұқсас кітаптар
-- 🛒 **Тапсырыс беру** — кітапты тапсырысқа алу, қайтару мерзімін белгілеу
-- 👤 **Аутентификация** — тіркелу, кіру (JWT + bcrypt)
-- 🛡️ **Рөлдер** — `reader` (оқырман) және `admin` (әкімші) рөлдері
-- ⚙️ **Әкімші панелі** — кітап қосу/жою, тапсырыстар күйін өзгерту
+| Деңгей | Технология | Мақсаты / Қызметі |
+| :--- | :--- | :--- |
+| **Фронтенд** | Next.js 16 (App Router), React 19 | Оңтайландырылған пайдаланушы интерфейсі (UI) |
+| **Стильдеу** | Vanilla CSS, Lucide Icons | Таза әрі мінімсіз (minimalist) дизайн |
+| **Бэкенд** | Next.js API Routes | Кітаптарды алу, қайтару және каталогты басқару логикасы |
+| **Дерекқор** | PostgreSQL (Neon) | Пайдаланушылар мен кітап қорларын сенімді сақтау |
+| **ORM** | Drizzle | Дерекқор үлгілерін (schema) тип жағынан қауіпсіз басқару |
+| **Қауіпсіздік** | NextAuth.js | Пайдаланушыларды тіркеу, сессияларды сақтау |
 
----
+## Негізгі Мүмкіндіктер
 
-## 🛠️ Технологиялар
+### Оқырмандар үшін
+*   **Смарт Каталог:** Кітаптарды авторлары, жанры бойынша іздеп табу. Әр кітаптың нақты қоймадағы қолжетімділігін көру.
+*   **Кітап алу жүйесі (Borrowing):** Оқырман кітапты белгілі бір мерзімге жалға ала алады. Қайтару мерзімі мен күйі (status) жеке кабинетте сақталады.
+*   **Тарих және Статистика:** Бұрын оқылған және қазір оқылып жатқан кітаптар тізіміне қол жеткізу.
 
-| Қабат | Технология |
-|-------|-----------|
-| Фронтенд | Next.js 15, React 19, TypeScript |
-| Стиль | Vanilla CSS (CSS Variables) |
-| Аутентификация | NextAuth.js v4 (JWT стратегиясы) |
-| ORM | Drizzle ORM |
-| Дерекқор | PostgreSQL 16 |
-| Валидация | Zod |
-| Иконкалар | Lucide React |
+### Әкімшілер (Admin) үшін
+*   **Кітап қорын басқару:** Жаңа кітаптар қосу, ескіргендерін өшіру және сипаттамаларын редакциялау.
+*   **Қарыздарды бақылау (Tracking):** Қай оқырманның қандай кітап алғанын, қайтару мерзімі өтіп кеткен-кетпегенін бақылау.
+*   **Пайдаланушыларды реттеу:** Оқырмандар тізімі мен олардың белсенділігін қадағалау.
 
----
+## Дерекқор Құрылымы (Schema)
 
-## 🚀 Жергілікті іске қосу
+| Кесте атауы | Сипаттамасы | Кілттер мен Байланыстар |
+| :--- | :--- | :--- |
+| `users` | Жүйедегі оқырмандар мен әкімшілер | `id`, `email`, `role` |
+| `books` | Кітапханадағы барлық кітаптар каталогы | `id`, `title`, `author`, `total_copies`, `available_copies` |
+| `borrowings` | Кім қандай кітапты алды және қашан қайтаруы тиіс | `user_id`, `book_id`, `borrow_date`, `due_date`, `status` |
 
-### 1. Репозиторийді клондау
+## Жобаны Іске Қосу (Local Setup)
+
+Жобаны өз компьютеріңізде іске қосу қадамдары төменде көрсетілген:
+
+### 1. Қажетті құралдар
+*   [Node.js](https://nodejs.org/en/) (v20 немесе жаңалау)
+*   [pnpm](https://pnpm.io/) 
+*   PostgreSQL дерекқоры
+
+### 2. Қоршаған орта айнымалылары
+`.env.local` файлын жасап, төмендегідей толтырыңыз:
 
 ```bash
-git clone https://github.com/your-username/library-system.git
-cd library-system
-```
-
-### 2. Тәуелділіктерді орнату
-
-```bash
-pnpm install
-```
-
-### 3. Орта айнымалыларын баптау
-
-`.env.local` файлын жасап, мынаны толтырыңыз:
-
-```env
-# PostgreSQL байланысы
-DATABASE_URL=postgresql://postgres:PASSWORD@localhost:5432/library_system
-
-# NextAuth
-NEXTAUTH_SECRET=your-super-secret-key-here
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
 NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=өз_құпия_сөзіңіз
 ```
 
-### 4. Дерекқорды дайындау
+### 3. Орнату және Іске қосу
 
 ```bash
-# Миграциялар
-pnpm run db:migrate
+# 1. Тәуелділіктерді (dependencies) орнату
+pnpm install
 
-# Тест деректерін жүктеу (кітаптар, категориялар)
-pnpm run db:seed
+# 2. Дерекқорға құрылымды жіберу
+pnpm db:push
+
+# 3. Серверді іске қосу
+pnpm dev
 ```
-
-### 5. Серверді іске қосу
-
-```bash
-pnpm run dev
-```
-
-Браузерде ашыңыз: [http://localhost:3000](http://localhost:3000)
-
-### Тест аккаунты
-
-```
-Email: admin@library.kz
-Құпия сөз: admin123
-```
+Браузер арқылы [http://localhost:3000](http://localhost:3000) сілтемесіне өтіңіз.
 
 ---
-
-## 📡 API Эндпоинттері
-
-### Кітаптар
-
-| Метод | URL | Сипаттама | Auth |
-|-------|-----|-----------|------|
-| `GET` | `/api/books` | Кітаптар тізімі (сүзу, pagination) | Жоқ |
-| `GET` | `/api/books/:id` | Жеке кітаптың толық ақпараты | Жоқ |
-| `POST` | `/api/admin/books` | Жаңа кітап қосу | Admin |
-| `DELETE` | `/api/admin/books?id=X` | Кітапты жою | Admin |
-
-### Тапсырыстар
-
-| Метод | URL | Сипаттама | Auth |
-|-------|-----|-----------|------|
-| `GET` | `/api/orders` | Өзімнің тапсырыстарым | Пайдаланушы |
-| `GET` | `/api/orders?all=true` | Барлық тапсырыстар | Admin |
-| `POST` | `/api/orders` | Жаңа тапсырыс беру | Пайдаланушы |
-| `PATCH` | `/api/orders/:id` | Тапсырыс күйін өзгерту | Admin |
-
-### Анықтама
-
-| Метод | URL | Сипаттама |
-|-------|-----|-----------|
-| `GET` | `/api/categories` | Санаттар тізімі |
-| `GET` | `/api/authors` | Авторлар тізімі |
-
-**Сұрау параметрлері** (`GET /api/books`):
-- `q` — іздеу сөзі
-- `category` — санат ID
-- `author` — автор ID
-- `available=true` — тек қолжетімді кітаптар
-- `page`, `limit` — pagination
-
----
-
-## 🗃️ Дерекқор схемасы
-
-```
-users         — пайдаланушылар (id, name, email, password, role)
-books         — кітаптар (id, titleKz, authorId, categoryId, isbn, year, copies)
-authors       — авторлар (id, name, bio)
-categories    — санаттар (id, nameKz)
-orders        — тапсырыстар (id, userId, bookId, status, orderedAt, dueDate)
-```
-
----
-
-## 📁 Жоба құрылымы
-
-```
-library-system/
-├── app/
-│   ├── api/           # REST API маршруттары
-│   ├── auth/          # Кіру / тіркелу беттері
-│   ├── books/[id]/    # Кітап беті
-│   ├── catalog/       # Каталог беті
-│   ├── orders/        # Тапсырыстар беті
-│   ├── admin/         # Әкімші панелі
-│   └── page.tsx       # Басты бет
-├── components/        # Қайта қолданылатын компоненттер
-├── lib/
-│   ├── auth.ts        # NextAuth конфигурациясы
-│   └── db/            # Drizzle ORM схемасы, сұраулар
-└── scripts/           # Дерекқор скриптері
-```
-
----
-
-## 📄 Лицензия
-
-MIT © 2024 Кітапхана
+*Білімге қол жеткізу — бір батырма қашықтықта.*
