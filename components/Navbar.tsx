@@ -3,11 +3,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { User, LogOut, Shield, ChevronDown } from "lucide-react";
+import { User, LogOut, Shield, ChevronDown, Menu, X } from "lucide-react";
 
+/**
+ * Navbar — жоғарғы навигация панелі.
+ * Scroll кезінде box-shadow пайда болады.
+ * Мобильді экранда (< 768px) hamburger меню белсендіріледі.
+ */
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
     const pathname = usePathname();
     const { data: session } = useSession();
 
@@ -18,7 +24,17 @@ export default function Navbar() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
+    // Бет ауысқанда мобильді мәзірді жабу
+    useEffect(() => { setMobileOpen(false); }, [pathname]);
+
     const isAdmin = (session?.user as any)?.role === "admin";
+
+    const navLinks = [
+        { href: "/", label: "Басты бет" },
+        { href: "/catalog", label: "Каталог" },
+        ...(session ? [{ href: "/orders", label: "Тапсырыстар" }] : []),
+        ...(isAdmin ? [{ href: "/admin", label: "Әкімші" }] : []),
+    ];
 
     return (
         <nav
@@ -29,7 +45,6 @@ export default function Navbar() {
                 height: "68px",
                 display: "flex",
                 alignItems: "center",
-                // Always visible: solid cream with bottom border, stronger on scroll
                 background: scrolled
                     ? "rgba(250,247,242,0.97)"
                     : "rgba(250,247,242,0.92)",
@@ -62,14 +77,10 @@ export default function Navbar() {
                     Кітапхана
                 </Link>
 
-                {/* Links */}
-                <ul style={{ display: "flex", alignItems: "center", gap: "2.25rem", listStyle: "none", margin: 0, padding: 0 }}>
-                    {[
-                        { href: "/", label: "Басты бет" },
-                        { href: "/catalog", label: "Каталог" },
-                        ...(session ? [{ href: "/orders", label: "Тапсырыстар" }] : []),
-                        ...(isAdmin ? [{ href: "/admin", label: "Әкімші" }] : []),
-                    ].map(({ href, label }) => {
+                {/* Desktop Links */}
+                <ul style={{ display: "flex", alignItems: "center", gap: "2.25rem", listStyle: "none", margin: 0, padding: 0 }}
+                    className="navbar__links-desktop">
+                    {navLinks.map(({ href, label }) => {
                         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
                         return (
                             <li key={href}>
@@ -93,89 +104,159 @@ export default function Navbar() {
                     })}
                 </ul>
 
-                {/* Right */}
+                {/* Right (Desktop user menu) */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    {session ? (
-                        <div
-                            onClick={() => setMenuOpen(!menuOpen)}
-                            style={{
-                                position: "relative", cursor: "pointer",
-                                display: "flex", alignItems: "center", gap: "7px",
-                                padding: "7px 14px",
-                                border: "1.5px solid var(--border-2)",
-                                borderRadius: "100px",
-                                fontSize: "0.8rem",
-                                color: "var(--text-muted)",
-                                fontFamily: "var(--font-sans)",
-                                fontWeight: 500,
-                                transition: "all 0.25s ease",
-                                background: menuOpen ? "var(--burgundy-dim)" : "transparent",
-                                borderColor: menuOpen ? "var(--burgundy)" : "var(--border-2)",
-                            }}
-                        >
-                            <User size={13} />
-                            <span>{session.user?.name?.split(" ")[0]}</span>
-                            {isAdmin && <Shield size={11} style={{ color: "var(--burgundy)" }} />}
-                            <ChevronDown size={12} style={{ opacity: 0.5, marginLeft: "2px" }} />
+                    <div className="navbar__user-desktop">
+                        {session ? (
+                            <div
+                                onClick={() => setMenuOpen(!menuOpen)}
+                                style={{
+                                    position: "relative", cursor: "pointer",
+                                    display: "flex", alignItems: "center", gap: "7px",
+                                    padding: "7px 14px",
+                                    border: "1.5px solid var(--border-2)",
+                                    borderRadius: "100px",
+                                    fontSize: "0.8rem",
+                                    color: "var(--text-muted)",
+                                    fontFamily: "var(--font-sans)",
+                                    fontWeight: 500,
+                                    transition: "all 0.25s ease",
+                                    background: menuOpen ? "var(--burgundy-dim)" : "transparent",
+                                    borderColor: menuOpen ? "var(--burgundy)" : "var(--border-2)",
+                                }}
+                            >
+                                <User size={13} />
+                                <span>{session.user?.name?.split(" ")[0]}</span>
+                                {isAdmin && <Shield size={11} style={{ color: "var(--burgundy)" }} />}
+                                <ChevronDown size={12} style={{ opacity: 0.5, marginLeft: "2px" }} />
 
-                            {menuOpen && (
-                                <div style={{
-                                    position: "absolute", top: "calc(100% + 8px)", right: 0,
-                                    background: "var(--white)", border: "1.5px solid var(--border)",
-                                    borderRadius: "var(--radius)", padding: "0.4rem",
-                                    minWidth: "170px", zIndex: 200,
-                                    boxShadow: "0 8px 32px rgba(30,18,8,0.14)",
-                                    animation: "scaleIn 0.18s ease both",
-                                }}>
-                                    {isAdmin && (
-                                        <Link href="/admin" onClick={() => setMenuOpen(false)} style={{
+                                {menuOpen && (
+                                    <div style={{
+                                        position: "absolute", top: "calc(100% + 8px)", right: 0,
+                                        background: "var(--white)", border: "1.5px solid var(--border)",
+                                        borderRadius: "var(--radius)", padding: "0.4rem",
+                                        minWidth: "170px", zIndex: 200,
+                                        boxShadow: "0 8px 32px rgba(30,18,8,0.14)",
+                                        animation: "scaleIn 0.18s ease both",
+                                    }}>
+                                        {isAdmin && (
+                                            <Link href="/admin" onClick={() => setMenuOpen(false)} style={{
+                                                display: "flex", alignItems: "center", gap: "8px",
+                                                padding: "9px 12px", borderRadius: "6px",
+                                                fontSize: "0.83rem", color: "var(--text-muted)",
+                                                textDecoration: "none", transition: "background 0.2s",
+                                            }}
+                                                onMouseEnter={e => (e.currentTarget.style.background = "var(--cream-2)")}
+                                                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                                            >
+                                                <Shield size={13} style={{ color: "var(--burgundy)" }} /> Әкімші панелі
+                                            </Link>
+                                        )}
+                                        <button onClick={() => signOut()} style={{
                                             display: "flex", alignItems: "center", gap: "8px",
-                                            padding: "9px 12px", borderRadius: "6px",
-                                            fontSize: "0.83rem", color: "var(--text-muted)",
-                                            textDecoration: "none", transition: "background 0.2s",
+                                            width: "100%", padding: "9px 12px",
+                                            background: "none", border: "none", cursor: "pointer",
+                                            color: "var(--text-muted)", fontSize: "0.83rem",
+                                            borderRadius: "6px", transition: "background 0.2s",
+                                            fontFamily: "var(--font-sans)",
                                         }}
-                                            onMouseEnter={e => (e.currentTarget.style.background = "var(--cream-2)")}
-                                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                                            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = "var(--cream-2)")}
+                                            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = "transparent")}
                                         >
-                                            <Shield size={13} style={{ color: "var(--burgundy)" }} /> Әкімші панелі
-                                        </Link>
-                                    )}
-                                    <button onClick={() => signOut()} style={{
-                                        display: "flex", alignItems: "center", gap: "8px",
-                                        width: "100%", padding: "9px 12px",
-                                        background: "none", border: "none", cursor: "pointer",
-                                        color: "var(--text-muted)", fontSize: "0.83rem",
-                                        borderRadius: "6px", transition: "background 0.2s",
-                                        fontFamily: "var(--font-sans)",
-                                    }}
-                                        onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = "var(--cream-2)")}
-                                        onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = "transparent")}
-                                    >
-                                        <LogOut size={13} /> Шығу
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                                            <LogOut size={13} /> Шығу
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <Link href="/auth/login" style={{
+                                display: "inline-flex", alignItems: "center",
+                                padding: "9px 22px",
+                                background: "var(--espresso)",
+                                color: "#fff",
+                                borderRadius: "var(--radius)",
+                                fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.06em",
+                                textTransform: "uppercase", textDecoration: "none",
+                                transition: "background 0.25s ease",
+                                fontFamily: "var(--font-sans)",
+                            }}
+                                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "var(--burgundy)")}
+                                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "var(--espresso)")}
+                            >
+                                Кіру
+                            </Link>
+                        )}
+                    </div>
+
+                    {/* Hamburger button (mobile only) */}
+                    <button
+                        className="navbar__hamburger"
+                        onClick={() => setMobileOpen(o => !o)}
+                        aria-label="Мәзірді ашу"
+                        style={{
+                            display: "none",
+                            background: "none", border: "none", cursor: "pointer",
+                            color: "var(--espresso)", padding: "8px",
+                        }}
+                    >
+                        {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+                    </button>
+                </div>
+            </div>
+
+            {/* Mobile dropdown menu */}
+            {mobileOpen && (
+                <div style={{
+                    position: "absolute", top: "68px", left: 0, right: 0,
+                    background: "rgba(250,247,242,0.98)",
+                    borderBottom: "1px solid var(--border-2)",
+                    backdropFilter: "blur(16px)",
+                    padding: "1rem 1.5rem 1.5rem",
+                    zIndex: 99,
+                    display: "flex", flexDirection: "column", gap: "0.25rem",
+                    animation: "scaleIn 0.18s ease both",
+                }}>
+                    {navLinks.map(({ href, label }) => {
+                        const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+                        return (
+                            <Link key={href} href={href} style={{
+                                display: "block",
+                                padding: "12px 16px",
+                                borderRadius: "var(--radius)",
+                                fontFamily: "var(--font-sans)",
+                                fontSize: "0.9rem", fontWeight: 600,
+                                color: active ? "var(--burgundy)" : "var(--text-muted)",
+                                background: active ? "var(--burgundy-dim)" : "transparent",
+                                textDecoration: "none",
+                                transition: "background 0.2s",
+                            }}>
+                                {label}
+                            </Link>
+                        );
+                    })}
+                    <div style={{ borderTop: "1px solid var(--border)", margin: "0.5rem 0" }} />
+                    {session ? (
+                        <button onClick={() => signOut()} style={{
+                            display: "flex", alignItems: "center", gap: "8px",
+                            width: "100%", padding: "12px 16px",
+                            background: "none", border: "none", cursor: "pointer",
+                            color: "var(--text-muted)", fontSize: "0.9rem", fontWeight: 600,
+                            borderRadius: "var(--radius)", fontFamily: "var(--font-sans)", textAlign: "left",
+                        }}>
+                            <LogOut size={16} /> Шығу ({session.user?.name?.split(" ")[0]})
+                        </button>
                     ) : (
                         <Link href="/auth/login" style={{
-                            display: "inline-flex", alignItems: "center",
-                            padding: "9px 22px",
-                            background: "var(--espresso)",
-                            color: "#fff",
-                            borderRadius: "var(--radius)",
-                            fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.06em",
-                            textTransform: "uppercase", textDecoration: "none",
-                            transition: "background 0.25s ease",
-                            fontFamily: "var(--font-sans)",
-                        }}
-                            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "var(--burgundy)")}
-                            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "var(--espresso)")}
-                        >
+                            display: "block", padding: "12px 16px",
+                            background: "var(--espresso)", color: "#fff",
+                            borderRadius: "var(--radius)", textDecoration: "none",
+                            fontFamily: "var(--font-sans)", fontSize: "0.9rem", fontWeight: 600, textAlign: "center",
+                        }}>
                             Кіру
                         </Link>
                     )}
                 </div>
-            </div>
+            )}
         </nav>
     );
 }

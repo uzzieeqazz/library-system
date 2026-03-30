@@ -2553,9 +2553,20 @@ a {
 }
 
 @media (max-width:768px) {
-  .navbar__links {
+  .navbar__links-desktop {
     display: none;
   }
+
+  .navbar__user-desktop {
+    display: none;
+  }
+
+  .navbar__hamburger {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
 
   .feature-book {
     grid-template-columns: 1fr;

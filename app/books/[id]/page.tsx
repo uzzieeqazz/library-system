@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { X, BookOpen, Calendar, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const BOOK_COLORS = [
     "#2C1A0E", "#1A1A2E", "#0D2B1A", "#2A1A0A",
@@ -95,9 +96,11 @@ export default function BookDetailPage({ params: paramsPromise }: { params: Prom
                         <aside className="book-detail__cover animate-slide-left">
                             {book.coverUrl ? (
                                 <div style={{ borderRadius: "var(--radius-lg)", overflow: "hidden", boxShadow: "var(--shadow-xl)", background: "#1A1208" }}>
-                                    <img
+                                    <Image
                                         src={book.coverUrl}
                                         alt={book.titleKz}
+                                        width={400}
+                                        height={600}
                                         style={{ width: "100%", display: "block", aspectRatio: "2/3", objectFit: "contain" }}
                                     />
                                 </div>
@@ -185,7 +188,7 @@ export default function BookDetailPage({ params: paramsPromise }: { params: Prom
                                                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
                                             >
                                                 <div style={{ width: "36px", height: "54px", background: BOOK_COLORS[rb.id % BOOK_COLORS.length], borderRadius: "3px", flexShrink: 0, overflow: "hidden", borderLeft: rb.coverUrl ? "none" : "3px solid var(--burgundy)" }}>
-                                                    {rb.coverUrl && <img src={rb.coverUrl} alt={rb.titleKz} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
+                                                    {rb.coverUrl && <Image src={rb.coverUrl} alt={rb.titleKz} width={36} height={54} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
                                                 </div>
                                                 <div>
                                                     <div style={{ fontFamily: "var(--font-display)", fontSize: "0.9rem", color: "var(--espresso)", marginBottom: "0.15rem" }}>{rb.titleKz}</div>

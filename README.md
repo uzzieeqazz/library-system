@@ -1,36 +1,160 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📚 Кітапхана — Цифрлық кітапхана жүйесі
 
-## Getting Started
+Кітапханашылар мен оқырмандарға арналған толыққанды веб-қосымша. Пайдаланушылар кітаптарды шолып, тапсырыс бере алады. Әкімші кітаптарды және тапсырыстарды басқара алады.
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-15-black) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-0.40-green)
+
+---
+
+## ✨ Мүмкіндіктер
+
+- 🔍 **Каталог** — кітаптарды іздеу, санат, автор бойынша сүзу, pagination
+- 📖 **Кітап беті** — толық ақпарат, автор туралы, ұқсас кітаптар
+- 🛒 **Тапсырыс беру** — кітапты тапсырысқа алу, қайтару мерзімін белгілеу
+- 👤 **Аутентификация** — тіркелу, кіру (JWT + bcrypt)
+- 🛡️ **Рөлдер** — `reader` (оқырман) және `admin` (әкімші) рөлдері
+- ⚙️ **Әкімші панелі** — кітап қосу/жою, тапсырыстар күйін өзгерту
+
+---
+
+## 🛠️ Технологиялар
+
+| Қабат | Технология |
+|-------|-----------|
+| Фронтенд | Next.js 15, React 19, TypeScript |
+| Стиль | Vanilla CSS (CSS Variables) |
+| Аутентификация | NextAuth.js v4 (JWT стратегиясы) |
+| ORM | Drizzle ORM |
+| Дерекқор | PostgreSQL 16 |
+| Валидация | Zod |
+| Иконкалар | Lucide React |
+
+---
+
+## 🚀 Жергілікті іске қосу
+
+### 1. Репозиторийді клондау
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/library-system.git
+cd library-system
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Тәуелділіктерді орнату
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Орта айнымалыларын баптау
 
-## Learn More
+`.env.local` файлын жасап, мынаны толтырыңыз:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+# PostgreSQL байланысы
+DATABASE_URL=postgresql://postgres:PASSWORD@localhost:5432/library_system
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# NextAuth
+NEXTAUTH_SECRET=your-super-secret-key-here
+NEXTAUTH_URL=http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4. Дерекқорды дайындау
 
-## Deploy on Vercel
+```bash
+# Миграциялар
+pnpm run db:migrate
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Тест деректерін жүктеу (кітаптар, категориялар)
+pnpm run db:seed
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 5. Серверді іске қосу
+
+```bash
+pnpm run dev
+```
+
+Браузерде ашыңыз: [http://localhost:3000](http://localhost:3000)
+
+### Тест аккаунты
+
+```
+Email: admin@library.kz
+Құпия сөз: admin123
+```
+
+---
+
+## 📡 API Эндпоинттері
+
+### Кітаптар
+
+| Метод | URL | Сипаттама | Auth |
+|-------|-----|-----------|------|
+| `GET` | `/api/books` | Кітаптар тізімі (сүзу, pagination) | Жоқ |
+| `GET` | `/api/books/:id` | Жеке кітаптың толық ақпараты | Жоқ |
+| `POST` | `/api/admin/books` | Жаңа кітап қосу | Admin |
+| `DELETE` | `/api/admin/books?id=X` | Кітапты жою | Admin |
+
+### Тапсырыстар
+
+| Метод | URL | Сипаттама | Auth |
+|-------|-----|-----------|------|
+| `GET` | `/api/orders` | Өзімнің тапсырыстарым | Пайдаланушы |
+| `GET` | `/api/orders?all=true` | Барлық тапсырыстар | Admin |
+| `POST` | `/api/orders` | Жаңа тапсырыс беру | Пайдаланушы |
+| `PATCH` | `/api/orders/:id` | Тапсырыс күйін өзгерту | Admin |
+
+### Анықтама
+
+| Метод | URL | Сипаттама |
+|-------|-----|-----------|
+| `GET` | `/api/categories` | Санаттар тізімі |
+| `GET` | `/api/authors` | Авторлар тізімі |
+
+**Сұрау параметрлері** (`GET /api/books`):
+- `q` — іздеу сөзі
+- `category` — санат ID
+- `author` — автор ID
+- `available=true` — тек қолжетімді кітаптар
+- `page`, `limit` — pagination
+
+---
+
+## 🗃️ Дерекқор схемасы
+
+```
+users         — пайдаланушылар (id, name, email, password, role)
+books         — кітаптар (id, titleKz, authorId, categoryId, isbn, year, copies)
+authors       — авторлар (id, name, bio)
+categories    — санаттар (id, nameKz)
+orders        — тапсырыстар (id, userId, bookId, status, orderedAt, dueDate)
+```
+
+---
+
+## 📁 Жоба құрылымы
+
+```
+library-system/
+├── app/
+│   ├── api/           # REST API маршруттары
+│   ├── auth/          # Кіру / тіркелу беттері
+│   ├── books/[id]/    # Кітап беті
+│   ├── catalog/       # Каталог беті
+│   ├── orders/        # Тапсырыстар беті
+│   ├── admin/         # Әкімші панелі
+│   └── page.tsx       # Басты бет
+├── components/        # Қайта қолданылатын компоненттер
+├── lib/
+│   ├── auth.ts        # NextAuth конфигурациясы
+│   └── db/            # Drizzle ORM схемасы, сұраулар
+└── scripts/           # Дерекқор скриптері
+```
+
+---
+
+## 📄 Лицензия
+
+MIT © 2024 Кітапхана

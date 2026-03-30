@@ -5,6 +5,11 @@ import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
+/**
+ * NextAuth.js конфигурациясы.
+ * JWT стратегиясын қолданады, credentials (email + құпия сөз) арқылы аутентификация.
+ * JWT токеніне пайдаланушының id және role орналастырылады.
+ */
 export const authOptions: NextAuthOptions = {
     session: { strategy: "jwt" },
     secret: process.env.NEXTAUTH_SECRET,
@@ -19,6 +24,10 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Құпия сөз", type: "password" },
             },
             async authorize(credentials) {
+                // Аутентификация олқы:
+                // 1. credentials жоқ болса reject
+                // 2. Email бойынша пайдаланушыны табу
+                // 3. bcrypt арқылы парольді тексеру
                 if (!credentials?.email || !credentials?.password) return null;
                 const [user] = await db
                     .select()

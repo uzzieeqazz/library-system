@@ -9,71 +9,86 @@ function isAdmin(session: any) {
     return session?.user?.role === "admin";
 }
 
-// POST /api/admin/books — create a new book
+/**
+ * POST /api/admin/books — Жаңа кітап жасау (тек әкімшіге)
+ * Body: { titleKz, authorName, authorBio?, categoryId?, year?, isbn?, coverUrl?, totalCopies? }
+ */
 export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!isAdmin(session)) {
         return NextResponse.json({ error: "Рұқсат жоқ" }, { status: 403 });
     }
 
-    const body = await req.json();
-    const {
-        titleKz,
-        authorName,
-        authorBio,
-        categoryId,
-        year,
-        isbn,
-        coverUrl,
-        descriptionKz,
-        totalCopies = 1,
-    } = body;
+    try {
+        const body = await req.json();
+        const {
+            titleKz,
+            authorName,
+            authorBio,
+            categoryId,
+            year,
+            isbn,
+            coverUrl,
+            descriptionKz,
+            totalCopies = 1,
+        } = body;
 
-    if (!titleKz?.trim() || !authorName?.trim()) {
-        return NextResponse.json({ error: "Кітап атауы мен автор міндетті" }, { status: 400 });
-    }
+        if (!titleKz?.trim() || !authorName?.trim()) {
+            return NextResponse.json({ error: "Кітап атауы мен автор міндетті" }, { status: 400 });
+        }
 
-    // Upsert author — find existing or create
-    let [existingAuthor] = await db
-        .select()
-        .from(authors)
-        .where(eq(authors.name, authorName.trim()));
+        // Автор бар болса табу, жоқ болса жаңа жазба жасау
+        let [existingAuthor] = await db
+            .select()
+            .from(authors)
+            .where(eq(authors.name, authorName.trim()));
 
-    if (!existingAuthor) {
-        [existingAuthor] = await db
-            .insert(authors)
-            .values({ name: authorName.trim(), bio: authorBio?.trim() || null })
+        if (!existingAuthor) {
+            [existingAuthor] = await db
+                .insert(authors)
+                .values({ name: authorName.trim(), bio: authorBio?.trim() || null })
+                .returning();
+        }
+
+        const [newBook] = await db
+            .insert(books)
+            .values({
+                titleKz: titleKz.trim(),
+                authorId: existingAuthor.id,
+                categoryId: categoryId ? parseInt(categoryId) : null,
+                year: year ? parseInt(year) : null,
+                isbn: isbn?.trim() || null,
+                coverUrl: coverUrl?.trim() || null,
+                descriptionKz: descriptionKz?.trim() || null,
+                totalCopies: parseInt(totalCopies) || 1,
+                availableCopies: parseInt(totalCopies) || 1,
+            })
             .returning();
+
+        return NextResponse.json(newBook, { status: 201 });
+    } catch (error) {
+        console.error("[POST /api/admin/books] Қате:", error);
+        return NextResponse.json({ error: "Кітапты жасау мүмкін болмады" }, { status: 500 });
     }
-
-    const [newBook] = await db
-        .insert(books)
-        .values({
-            titleKz: titleKz.trim(),
-            authorId: existingAuthor.id,
-            categoryId: categoryId ? parseInt(categoryId) : null,
-            year: year ? parseInt(year) : null,
-            isbn: isbn?.trim() || null,
-            coverUrl: coverUrl?.trim() || null,
-            descriptionKz: descriptionKz?.trim() || null,
-            totalCopies: parseInt(totalCopies) || 1,
-            availableCopies: parseInt(totalCopies) || 1,
-        })
-        .returning();
-
-    return NextResponse.json(newBook, { status: 201 });
 }
 
-// DELETE /api/admin/books?id=X — delete a book
+/**
+ * DELETE /api/admin/books?id=X — Кітапты жою (тек әкімшіге)
+ */
 export async function DELETE(req: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!isAdmin(session)) {
         return NextResponse.json({ error: "Рұқсат жоқ" }, { status: 403 });
     }
 
-    const id = parseInt(new URL(req.url).searchParams.get("id") || "");
-    if (isNaN(id)) return NextResponse.json({ error: "Жарамсыз ID" }, { status: 400 });
+    try {
+        const id = parseInt(new URL(req.url).searchParams.get("id") || "");
+        if (isNaN(id)) return NextResponse.json({ error: "Жарамсыз ID" }, { status: 400 });
 
-    await db.delete(books).where(eq(books.id, id));
-    return NextResponse.json({ ok: true });
+        await db.delete(books).where(eq(books.id, id));
+        return NextResponse.json({ ok: true });
+    } catch (error) {
+        console.error("[DELETE /api/admin/books] Қате:", error);
+        return NextResponse.json({ error: "Кітапты жою мүмкін болмады" }, { status: 500 });
+    }
 }

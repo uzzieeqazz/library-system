@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Search, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 
 const BOOK_COLORS = [
@@ -16,7 +17,7 @@ function BookCard({ book, idx }: { book: any; idx: number }) {
         <Link href={`/books/${book.id}`} className={`book-card animate-fade-up delay-${Math.min((idx % 8) + 1, 8)}`}>
             <div className="book-card__cover">
                 {book.coverUrl ? (
-                    <img src={book.coverUrl} alt={book.titleKz} />
+                    <Image src={book.coverUrl} alt={book.titleKz} width={200} height={300} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 ) : (
                     <div className="book-card__cover-ph" style={{ background: bg }}>
                         <div className="book-card__cover-spine" />
