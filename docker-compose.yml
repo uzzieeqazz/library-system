@@ -23,10 +23,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:1234@db:5432/library
-      NEXTAUTH_URL: http://localhost:3000
-      NEXTAUTH_SECRET: library-secret-key-2024-very-secure
+    env_file:
+      - .env.local
     volumes:
       - .:/app
       - /app/node_modules
