@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { books, authors, categories } from "@/lib/db/schema";
 import { eq, ilike, and, or, sql } from "drizzle-orm";
+import { getMappedCoverUrl } from "@/lib/cover-mapper";
 
 /**
  * GET /api/books
@@ -63,7 +64,12 @@ export async function GET(req: NextRequest) {
             .from(books)
             .where(whereClause);
 
-        return NextResponse.json({ books: rows, total: Number(count), page, limit });
+        const mappedRows = rows.map(row => ({
+            ...row,
+            coverUrl: getMappedCoverUrl(row.titleKz, row.coverUrl)
+        }));
+
+        return NextResponse.json({ books: mappedRows, total: Number(count), page, limit });
     } catch (error) {
         console.error("[GET /api/books] Дерекқор қатесі:", error);
         return NextResponse.json({ error: "Серверде қате пайда болды" }, { status: 500 });

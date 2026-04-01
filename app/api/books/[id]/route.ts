@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { books, authors, categories } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { getMappedCoverUrl } from "@/lib/cover-mapper";
 
 export async function GET(
     req: NextRequest,
@@ -34,5 +35,9 @@ export async function GET(
         .where(eq(books.id, id));
 
     if (!row) return NextResponse.json({ error: "Кітап табылмады" }, { status: 404 });
+    
+    // Map coverUrl dynamically to fix Vercel DB sync issues
+    row.coverUrl = getMappedCoverUrl(row.titleKz, row.coverUrl);
+
     return NextResponse.json(row);
 }
