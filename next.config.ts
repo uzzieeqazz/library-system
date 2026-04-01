@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "books.google.com",
+      },
+      {
+        protocol: "https",
         hostname: "images.unsplash.com",
       },
       {
