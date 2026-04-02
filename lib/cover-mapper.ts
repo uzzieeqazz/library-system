@@ -45,10 +45,34 @@ export const LOCAL_COVERS: Record<string, string> = {
 };
 
 export function getMappedCoverUrl(titleKz: string, originalUrl: string | null): string | null {
-    // If we have a local guaranteed cover, ALWAYS use it (prevents Vercel DB sync issues)
+    if (!titleKz) return originalUrl;
+
+    // 1. Exact match (fastest)
     if (LOCAL_COVERS[titleKz]) {
         return LOCAL_COVERS[titleKz];
     }
+
+    const normalize = (str: string) => 
+        str.toLowerCase().trim().replace(/[.,!?;:\-()"']/g, '').replace(/\s+/g, ' ');
+        
+    const nTitle = normalize(titleKz);
+
+    // 2. Normalized exact match
+    for (const [key, value] of Object.entries(LOCAL_COVERS)) {
+        if (normalize(key) === nTitle) {
+            return value;
+        }
+    }
+
+    // 3. Substring match (e.g. if DB has "Қылмыс пен жаза (Роман)")
+    for (const [key, value] of Object.entries(LOCAL_COVERS)) {
+        const nKey = normalize(key);
+        // Ensure string is decently long to avoid false positives with short titles
+        if (nKey.length > 4 && nTitle.includes(nKey)) {
+            return value;
+        }
+    }
+
     // Otherwise use whatever is in the DB
     return originalUrl;
 }
